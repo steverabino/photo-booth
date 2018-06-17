@@ -22,6 +22,8 @@ from luma.core.virtual import viewport
 from luma.core.legacy import text, show_message
 from luma.core.legacy.font import proportional, CP437_FONT, TINY_FONT, SINCLAIR_FONT, LCD_FONT
 
+from wand.image import Image
+
 def demo(photo_count, countdown_from):
 
     # create matrix device
@@ -43,6 +45,17 @@ def demo(photo_count, countdown_from):
 
         print('Button Pressed')
 
+        # Start by creating a folder for all the photos, with a folder inside called minis for gif-based
+
+        pi_folder = os.path.join('/home/pi/wedding_photos/', time.strftime("%Y-%m-%d_%H-%M-%S", time.gmtime()))
+        minis_folder = os.path.join(pi_folder, 'minis')
+        os.makedirs(minis_folder)
+
+        gif_folder = os.path.join(pi_folder, 'gif')
+        os.makedirs(gif_folder)
+
+
+        # Start looping and taking photos!
 
         for index in range(photo_count):
 
@@ -98,7 +111,7 @@ def demo(photo_count, countdown_from):
           print('Camera file path: {0}/{1}'.format(file_path.folder, file_path.name))
 
           # save image to pi
-          target = os.path.join('/tmp', time.strftime("%Y%m%d%H%M%S", time.gmtime()) + file_path.name)
+          target = os.path.join(pi_folder, time.strftime("%Y%m%d%H%M%S", time.gmtime()) + file_path.name)
 
           print('Copying image to', target)
           camera_file = gp.check_result(gp.gp_camera_file_get(
@@ -112,6 +125,31 @@ def demo(photo_count, countdown_from):
           ## GPHOTO END
 
           device.clear()
+
+        # OK, let's create a gif! First, let's create some smaller images
+
+        for filename in os.listdir(pi_folder):
+            if filename.endswith(".jpg"):
+                img = Image(filename=os.path.join(pi_folder, filename))
+                img.sample(520, 360)
+                img.save(filename=os.path.join(minis_folder, filename))
+            else:
+                continue
+
+        # Create a gif from them smaller images
+
+        with Image() as wand:
+            for filename in os.listdir(minis_folder):
+                if filename.endswith(".jpg"):
+                    with Image(filename=os.path.join(minis_folder, filename)) as photo:
+                        wand.sequence.append(photo)
+                else:
+                    continue
+            for cursor in range(len(wand.sequence)):
+                with wand.sequence[cursor] as frame:
+                    frame.delay = 50
+            wand.type = 'optimize'
+            wand.save(filename=os.path.join(gif_folder, 'animated.gif'))
 
 
 if __name__ == "__main__":
