@@ -47,11 +47,12 @@ def demo(photo_count, countdown_from):
 
         # Start by creating a folder for all the photos, with a folder inside called minis for gif-based
 
-        pi_folder = os.path.join('/home/pi/wedding_photos/', time.strftime("%Y-%m-%d_%H-%M-%S", time.gmtime()))
+        time_now = time.strftime("%Y-%m-%d_%H-%M-%S", time.gmtime())
+        pi_folder = os.path.join('/home/pi/wedding_photos/', time_now)
         minis_folder = os.path.join(pi_folder, 'minis')
         os.makedirs(minis_folder)
 
-        gif_folder = os.path.join(pi_folder, 'gif')
+        gif_folder = os.path.join('/home/pi/wedding_photos/gifs/')
         os.makedirs(gif_folder)
 
 
@@ -131,7 +132,7 @@ def demo(photo_count, countdown_from):
         for filename in os.listdir(pi_folder):
             if filename.endswith(".jpg"):
                 img = Image(filename=os.path.join(pi_folder, filename))
-                img.sample(520, 360)
+                img.sample(780, 540)
                 img.save(filename=os.path.join(minis_folder, filename))
             else:
                 continue
@@ -149,7 +150,7 @@ def demo(photo_count, countdown_from):
                 with wand.sequence[cursor] as frame:
                     frame.delay = 50
             wand.type = 'optimize'
-            wand.save(filename=os.path.join(gif_folder, 'animated.gif'))
+            wand.save(filename=os.path.join(gif_folder, "{0}.gif".format(time_now)))
 
 
 if __name__ == "__main__":
