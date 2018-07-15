@@ -53,7 +53,7 @@ def demo(photo_count, countdown_from):
         os.makedirs(minis_folder)
 
         gif_folder = os.path.join('/home/pi/wedding_photos/gifs/')
-        os.makedirs(gif_folder)
+        # os.makedirs(gif_folder)
 
 
         # Start looping and taking photos!
