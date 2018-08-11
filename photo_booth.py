@@ -34,7 +34,7 @@ def demo(photo_count, countdown_from):
     # setup button on Raspberry Pi Pin 18
 
     GPIO.setmode(GPIO.BCM)
-    GPIO.setup(18, GPIO.IN)
+    GPIO.setup(18, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
     while True:
         print("PUSH THE BUTTON!")
@@ -44,115 +44,113 @@ def demo(photo_count, countdown_from):
         GPIO.wait_for_edge(18, GPIO.FALLING)
 
         print('Button Pressed')
-        time.sleep(0.005)
 
-        if GPIO.input(18) == 0:
-            # Start by creating a folder for all the photos, with a folder inside called minis for gif-based
+        # Start by creating a folder for all the photos, with a folder inside called minis for gif-based
 
-            time_now = time.strftime("%Y-%m-%d_%H-%M-%S", time.gmtime())
-            pi_folder = os.path.join('/home/pi/wedding_photos/', time_now)
-            minis_folder = os.path.join(pi_folder, 'minis')
-            os.makedirs(minis_folder)
+        time_now = time.strftime("%Y-%m-%d_%H-%M-%S", time.gmtime())
+        pi_folder = os.path.join('/home/pi/wedding_photos/', time_now)
+        minis_folder = os.path.join(pi_folder, 'minis')
+        os.makedirs(minis_folder)
 
-            gif_folder = os.path.join('/home/pi/wedding_photos/gifs/')
-            # os.makedirs(gif_folder)
+        gif_folder = os.path.join('/home/pi/wedding_photos/gifs/')
+        # os.makedirs(gif_folder)
 
 
-            # Start looping and taking photos!
+        # Start looping and taking photos!
 
-            for index in range(photo_count):
+        for index in range(photo_count):
 
-              for i in range(countdown_from):
+          for i in range(countdown_from):
 
-                msg = countdown_from - i
-                print(msg)
-                with canvas(device) as draw:
+            msg = countdown_from - i
+            print(msg)
+            with canvas(device) as draw:
 
-                    text(draw, (1, 0), str(msg), fill="white")
-                time.sleep(1)
+                text(draw, (1, 0), str(msg), fill="white")
+            time.sleep(1)
 
-                if i != countdown_from:
-                  with canvas(device) as draw:
-                      text(draw, (0, 0), chr(3), fill="white")
-                  time.sleep(0.2)
-
+            if i != countdown_from:
               with canvas(device) as draw:
-                  draw.point((1, 0), fill="white")
-                  draw.point((2, 0), fill="white")
-                  draw.point((5, 0), fill="white")
-                  draw.point((6, 0), fill="white")
-                  draw.point((1, 1), fill="white")
-                  draw.point((2, 1), fill="white")
-                  draw.point((5, 1), fill="white")
-                  draw.point((6, 1), fill="white")
+                  text(draw, (0, 0), chr(3), fill="white")
+              time.sleep(0.2)
 
-                  draw.point((4, 3), fill="white")
-                  draw.point((3, 4), fill="white")
-                  draw.point((4, 4), fill="white")
+          with canvas(device) as draw:
+              draw.point((1, 0), fill="white")
+              draw.point((2, 0), fill="white")
+              draw.point((5, 0), fill="white")
+              draw.point((6, 0), fill="white")
+              draw.point((1, 1), fill="white")
+              draw.point((2, 1), fill="white")
+              draw.point((5, 1), fill="white")
+              draw.point((6, 1), fill="white")
 
-                  draw.point((0, 4), fill="white")
-                  draw.point((0, 5), fill="white")
-                  draw.point((1, 6), fill="white")
-                  draw.point((2, 7), fill="white")
-                  draw.point((3, 7), fill="white")
-                  draw.point((4, 7), fill="white")
-                  draw.point((5, 7), fill="white")
-                  draw.point((6, 6), fill="white")
-                  draw.point((7, 5), fill="white")
-                  draw.point((7, 4), fill="white")
+              draw.point((4, 3), fill="white")
+              draw.point((3, 4), fill="white")
+              draw.point((4, 4), fill="white")
 
-              # GPHOTO
+              draw.point((0, 4), fill="white")
+              draw.point((0, 5), fill="white")
+              draw.point((1, 6), fill="white")
+              draw.point((2, 7), fill="white")
+              draw.point((3, 7), fill="white")
+              draw.point((4, 7), fill="white")
+              draw.point((5, 7), fill="white")
+              draw.point((6, 6), fill="white")
+              draw.point((7, 5), fill="white")
+              draw.point((7, 4), fill="white")
 
-              logging.basicConfig(
-                  format='%(levelname)s: %(name)s: %(message)s', level=logging.WARNING)
-              gp.check_result(gp.use_python_logging())
-              camera = gp.check_result(gp.gp_camera_new())
-              gp.check_result(gp.gp_camera_init(camera))
-              print('Capturing image')
-              file_path = gp.check_result(gp.gp_camera_capture(
-                  camera, gp.GP_CAPTURE_IMAGE))
-              print('Camera file path: {0}/{1}'.format(file_path.folder, file_path.name))
+          # GPHOTO
 
-              # save image to pi
-              target = os.path.join(pi_folder, time.strftime("%Y%m%d%H%M%S", time.gmtime()) + file_path.name)
+          logging.basicConfig(
+              format='%(levelname)s: %(name)s: %(message)s', level=logging.WARNING)
+          gp.check_result(gp.use_python_logging())
+          camera = gp.check_result(gp.gp_camera_new())
+          gp.check_result(gp.gp_camera_init(camera))
+          print('Capturing image')
+          file_path = gp.check_result(gp.gp_camera_capture(
+              camera, gp.GP_CAPTURE_IMAGE))
+          print('Camera file path: {0}/{1}'.format(file_path.folder, file_path.name))
 
-              print('Copying image to', target)
-              camera_file = gp.check_result(gp.gp_camera_file_get(
-                  camera, file_path.folder, file_path.name, gp.GP_FILE_TYPE_NORMAL))
-              gp.check_result(gp.gp_file_save(camera_file, target))
+          # save image to pi
+          target = os.path.join(pi_folder, time.strftime("%Y%m%d%H%M%S", time.gmtime()) + file_path.name)
 
-              # subprocess.call(['xdg-open', target]) # Commented out as no need to open
+          print('Copying image to', target)
+          camera_file = gp.check_result(gp.gp_camera_file_get(
+              camera, file_path.folder, file_path.name, gp.GP_FILE_TYPE_NORMAL))
+          gp.check_result(gp.gp_file_save(camera_file, target))
 
-              gp.check_result(gp.gp_camera_exit(camera))
+          # subprocess.call(['xdg-open', target]) # Commented out as no need to open
 
-              ## GPHOTO END
+          gp.check_result(gp.gp_camera_exit(camera))
 
-              device.clear()
+          ## GPHOTO END
 
-            # OK, let's create a gif! First, let's create some smaller images
+          device.clear()
 
-            for filename in os.listdir(pi_folder):
+        # OK, let's create a gif! First, let's create some smaller images
+
+        for filename in os.listdir(pi_folder):
+            if filename.endswith(".jpg"):
+                img = Image(filename=os.path.join(pi_folder, filename))
+                img.sample(780, 540)
+                img.save(filename=os.path.join(minis_folder, filename))
+            else:
+                continue
+
+        # Create a gif from them smaller images
+
+        with Image() as wand:
+            for filename in os.listdir(minis_folder):
                 if filename.endswith(".jpg"):
-                    img = Image(filename=os.path.join(pi_folder, filename))
-                    img.sample(780, 540)
-                    img.save(filename=os.path.join(minis_folder, filename))
+                    with Image(filename=os.path.join(minis_folder, filename)) as photo:
+                        wand.sequence.append(photo)
                 else:
                     continue
-
-            # Create a gif from them smaller images
-
-            with Image() as wand:
-                for filename in os.listdir(minis_folder):
-                    if filename.endswith(".jpg"):
-                        with Image(filename=os.path.join(minis_folder, filename)) as photo:
-                            wand.sequence.append(photo)
-                    else:
-                        continue
-                for cursor in range(len(wand.sequence)):
-                    with wand.sequence[cursor] as frame:
-                        frame.delay = 50
-                wand.type = 'optimize'
-                wand.save(filename=os.path.join(gif_folder, "{0}.gif".format(time_now)))
+            for cursor in range(len(wand.sequence)):
+                with wand.sequence[cursor] as frame:
+                    frame.delay = 50
+            wand.type = 'optimize'
+            wand.save(filename=os.path.join(gif_folder, "{0}.gif".format(time_now)))
 
 
 if __name__ == "__main__":
