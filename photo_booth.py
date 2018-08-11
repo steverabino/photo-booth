@@ -129,30 +129,30 @@ def demo(photo_count, countdown_from):
 
               device.clear()
 
-        # OK, let's create a gif! First, let's create some smaller images
+            # OK, let's create a gif! First, let's create some smaller images
 
-        for filename in os.listdir(pi_folder):
-            if filename.endswith(".jpg"):
-                img = Image(filename=os.path.join(pi_folder, filename))
-                img.sample(780, 540)
-                img.save(filename=os.path.join(minis_folder, filename))
-            else:
-                continue
-
-        # Create a gif from them smaller images
-
-        with Image() as wand:
-            for filename in os.listdir(minis_folder):
+            for filename in os.listdir(pi_folder):
                 if filename.endswith(".jpg"):
-                    with Image(filename=os.path.join(minis_folder, filename)) as photo:
-                        wand.sequence.append(photo)
+                    img = Image(filename=os.path.join(pi_folder, filename))
+                    img.sample(780, 540)
+                    img.save(filename=os.path.join(minis_folder, filename))
                 else:
                     continue
-            for cursor in range(len(wand.sequence)):
-                with wand.sequence[cursor] as frame:
-                    frame.delay = 50
-            wand.type = 'optimize'
-            wand.save(filename=os.path.join(gif_folder, "{0}.gif".format(time_now)))
+
+            # Create a gif from them smaller images
+
+            with Image() as wand:
+                for filename in os.listdir(minis_folder):
+                    if filename.endswith(".jpg"):
+                        with Image(filename=os.path.join(minis_folder, filename)) as photo:
+                            wand.sequence.append(photo)
+                    else:
+                        continue
+                for cursor in range(len(wand.sequence)):
+                    with wand.sequence[cursor] as frame:
+                        frame.delay = 50
+                wand.type = 'optimize'
+                wand.save(filename=os.path.join(gif_folder, "{0}.gif".format(time_now)))
 
 
 if __name__ == "__main__":
