@@ -28,7 +28,7 @@ def demo(photo_count, countdown_from):
 
     # create matrix device
     serial = spi(port=0, device=0, gpio=noop())
-    device = max7219(serial, cascaded=1, block_orientation=0, rotate=2)
+    device = max7219(serial, cascaded=1, block_orientation=0, rotate=0)
     print("Created device")
 
     # setup button on Raspberry Pi Pin 18
