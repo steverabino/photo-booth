@@ -44,7 +44,7 @@ def demo(photo_count, countdown_from):
         GPIO.wait_for_edge(18, GPIO.FALLING)
 
         print('Button Pressed')
-        sleep(0.005)
+        time.sleep(0.005)
 
         if GPIO.input(18) == 0:
             # Start by creating a folder for all the photos, with a folder inside called minis for gif-based
