@@ -28,7 +28,7 @@ def demo(photo_count, countdown_from):
 
     # create matrix device
     serial = spi(port=0, device=0, gpio=noop())
-    device = max7219(serial, cascaded=1, block_orientation=0, rotate=0)
+    device = max7219(serial, cascaded=4, block_orientation=-90, rotate=0)
     print("Created device")
 
     # setup button on Raspberry Pi Pin 18
@@ -38,8 +38,8 @@ def demo(photo_count, countdown_from):
 
     while True:
         print("PUSH THE BUTTON!")
-        # msg = "Push the button"
-        # show_message(device, msg, fill="white", font=proportional(LCD_FONT), scroll_delay=0.2)
+	with canvas(device) as draw:
+		text(draw, (1, 0), "Ready", fill="white", font=proportional(LCD_FONT))
 
         GPIO.wait_for_edge(18, GPIO.FALLING)
 
@@ -59,56 +59,26 @@ def demo(photo_count, countdown_from):
         # Start looping and taking photos!
 
         for index in range(photo_count):
-
+	  msg = ""
           for i in range(countdown_from):
 
-            msg = countdown_from - i
-            print(msg)
-            with canvas(device) as draw:
+	    msg += "%s... " %(countdown_from - i)
 
-                text(draw, (1, 0), str(msg), fill="white")
-            time.sleep(1)
+	  show_message(device, msg, fill="white", font=proportional(LCD_FONT), scroll_delay=0.05)
 
-            if i != countdown_from:
-              with canvas(device) as draw:
-                  text(draw, (0, 0), chr(3), fill="white")
-              time.sleep(0.2)
-
-          with canvas(device) as draw:
-              draw.point((1, 0), fill="white")
-              draw.point((2, 0), fill="white")
-              draw.point((5, 0), fill="white")
-              draw.point((6, 0), fill="white")
-              draw.point((1, 1), fill="white")
-              draw.point((2, 1), fill="white")
-              draw.point((5, 1), fill="white")
-              draw.point((6, 1), fill="white")
-
-              draw.point((4, 3), fill="white")
-              draw.point((3, 4), fill="white")
-              draw.point((4, 4), fill="white")
-
-              draw.point((0, 4), fill="white")
-              draw.point((0, 5), fill="white")
-              draw.point((1, 6), fill="white")
-              draw.point((2, 7), fill="white")
-              draw.point((3, 7), fill="white")
-              draw.point((4, 7), fill="white")
-              draw.point((5, 7), fill="white")
-              draw.point((6, 6), fill="white")
-              draw.point((7, 5), fill="white")
-              draw.point((7, 4), fill="white")
+	  with canvas(device) as draw:
+            text(draw, (2, 0), "Smile!", fill="white", font=proportional(LCD_FONT))
 
           # GPHOTO
 
           logging.basicConfig(
-              format='%(levelname)s: %(name)s: %(message)s', level=logging.WARNING)
+            format='%(levelname)s: %(name)s: %(message)s', level=logging.WARNING)
           gp.check_result(gp.use_python_logging())
           camera = gp.check_result(gp.gp_camera_new())
           gp.check_result(gp.gp_camera_init(camera))
           print('Capturing image')
           file_path = gp.check_result(gp.gp_camera_capture(
-              camera, gp.GP_CAPTURE_IMAGE))
+            camera, gp.GP_CAPTURE_IMAGE))
           print('Camera file path: {0}/{1}'.format(file_path.folder, file_path.name))
 
           # save image to pi
@@ -116,7 +86,7 @@ def demo(photo_count, countdown_from):
 
           print('Copying image to', target)
           camera_file = gp.check_result(gp.gp_camera_file_get(
-              camera, file_path.folder, file_path.name, gp.GP_FILE_TYPE_NORMAL))
+            camera, file_path.folder, file_path.name, gp.GP_FILE_TYPE_NORMAL))
           gp.check_result(gp.gp_file_save(camera_file, target))
 
           # subprocess.call(['xdg-open', target]) # Commented out as no need to open
